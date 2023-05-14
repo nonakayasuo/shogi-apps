@@ -1,123 +1,102 @@
-import React from 'react';
-// import ReactDOM from 'react-dom';
-import './index.css';
-import {Setting} from "./setting";
-import {Piece} from './pieces/piece';
-// import { Pawn } from "./pieces/pawn";
-// import { Mt } from "./pieces/mt";
-// import {Game} from './game';
+import { useState } from "react";
+import "./index.css";
+import { Setting } from "./setting";
+import { Piece } from "./pieces/Piece";
+import React from "react";
 
-interface ISquareProps{
+type ISquareProps = {
   is_final: boolean;
   is_clicked: boolean;
+  can_control: boolean;
   value: string;
   is_black: boolean;
   is_captured: boolean;
-  can_control: boolean;
   onClick: () => void;
   is_mobile: boolean;
-}
+};
 
-function Square(props: ISquareProps){
-  let class_string: string = "";
-  if(props.is_captured){
-    class_string = (props.is_mobile ? "mobile-captured" : "captured");
-  }
-  else{
-    class_string = (props.is_mobile ? "mobile-square piece" : "square piece");
-    if(!props.is_black){
-      class_string = class_string + " white";
+function Square(props: ISquareProps) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [classString, setClassString] = useState(() => {
+    let str = "";
+    if (props.is_captured) {
+      str = props.is_mobile ? "mobile-captured" : "captured";
+    } else {
+      str = props.is_mobile ? "mobile-square piece" : "square piece";
+      if (!props.is_black) {
+        str = str + " white";
+      }
     }
-  }
-  if(props.is_final){
-    class_string = class_string + " final";
-  }
-  if(props.is_clicked){
-    class_string = class_string + " click";
-  }
-  if(props.can_control){
-    class_string = class_string + " attack";
-  }
+    if (props.is_final) {
+      str = str + " final";
+    }
+    if (props.is_clicked) {
+      str = str + " click";
+    }
+    if (props.can_control) {
+      str = str + " attack";
+    }
+    return str;
+  });
+
   return (
-    <button
-      className={class_string}
-      onClick={props.onClick}
-    >
+    <button className={classString} onClick={props.onClick}>
       {props.value}
     </button>
   );
 }
 
-interface IBoardProps {
+type IBoardProps = {
   squares: Piece[][];
   onClick: (i: number) => void;
   clicked_piece: number;
   control_piece: boolean[][];
   final_piece: number;
   is_mobile: boolean;
-}
+};
 
-interface IBoardState {
-  squares: Piece[][];
-  onClick: (i: number) => void;
-  clicked_piece: number;
-  control_piece: boolean[][];
-  final_piece: number;
-}
+export function Board(props: IBoardProps) {
+  const {
+    squares,
+    onClick,
+    control_piece,
+    final_piece,
+    clicked_piece,
+    is_mobile,
+  } = props;
 
-export class Board extends React.Component<IBoardProps, IBoardState> {
+  function content(y: number) {
+    return Array.from({ length: Setting.LENGTH }, (_, x) => {
+      const i = x * Setting.LENGTH + y + Setting.WHITE * 2;
+      const is_control = control_piece[x][y];
+      const is_final = i === final_piece - Setting.WHITE * 2;
+      const is_clicked = i === clicked_piece - Setting.WHITE * 2;
 
-  renderSquare(is_final: boolean, is_clicked: boolean, can_control: boolean, i: number) {
-    let j = i - Setting.WHITE * 2;
-    let x: number = Math.floor(j / Setting.LENGTH);
-    let y: number = j % Setting.LENGTH;
-    return (
-      <Square
-        key={i}
-        is_final={is_final}
-        is_clicked={is_clicked}
-        value={this.props.squares[x][y].out()}
-        is_black={this.props.squares[x][y].turn()}
-        is_captured={false}
-        can_control={can_control}
-        onClick={() => this.props.onClick(i)}
-        is_mobile={this.props.is_mobile}
-      />
-    );
+      return (
+        <Square
+          key={i}
+          is_final={is_final}
+          is_clicked={is_clicked}
+          can_control={is_control}
+          value={squares[x][y].out()}
+          is_black={squares[x][y].turn()}
+          is_captured={false}
+          onClick={() => onClick(i)}
+          is_mobile={is_mobile}
+        />
+      );
+    });
   }
 
-  content(y: number){
-    let content = [];
-    for(let x = Setting.LENGTH - 1; x >= 0; --x){
-      if(this.props.control_piece[x][y]){
-        content.push(this.renderSquare(false, false, true, x * Setting.LENGTH + y + Setting.WHITE * 2));
-      }
-      else if(x * Setting.LENGTH + y === this.props.final_piece - Setting.WHITE * 2){
-        content.push(this.renderSquare(true, false, false, x * Setting.LENGTH + y + Setting.WHITE * 2));
-      }
-      else if(x * Setting.LENGTH + y === this.props.clicked_piece - Setting.WHITE * 2){
-        content.push(this.renderSquare(false, true, false, x * Setting.LENGTH + y + Setting.WHITE * 2));
-      }
-      else{
-        content.push(this.renderSquare(false, false, false, x * Setting.LENGTH + y + Setting.WHITE * 2));
-      }
-    }
-    return content;
-  }
-
-  render() {
-    let items = new Array<JSX.Element>();
-    for(let y = 0; y < Setting.LENGTH; ++y){
-      items = items.concat(<div className="board-row ley" key={y}>{this.content(y)}</div>);
-    }
-
-    return (
-      <div>
-        {/* <div className="status">{status}</div> */}
-        {items}
-      </div>
-    );
-  }
+  return (
+    <div>
+      {Array.from({ length: Setting.LENGTH }, (_, y) => (
+        <div className="board-row ley" key={y}>
+          {content(y)}
+        </div>
+      ))}
+    </div>
+  );
 }
 
 interface ICapturedProps {
@@ -138,7 +117,6 @@ interface ICapturedState {
 }
 
 export class Captured extends React.Component<ICapturedProps, ICapturedState> {
-
   renderSquare(is_clicked: boolean, i: number) {
     return (
       <Square
@@ -149,7 +127,11 @@ export class Captured extends React.Component<ICapturedProps, ICapturedState> {
         is_black={this.props.is_black}
         is_captured={true}
         can_control={false}
-        onClick={(this.props.is_black ? () => this.props.onClick(i) : () => this.props.onClick(i + Setting.WHITE))}
+        onClick={
+          this.props.is_black
+            ? () => this.props.onClick(i)
+            : () => this.props.onClick(i + Setting.WHITE)
+        }
         is_mobile={this.props.is_mobile}
       />
     );
@@ -157,34 +139,37 @@ export class Captured extends React.Component<ICapturedProps, ICapturedState> {
 
   render() {
     let items = new Array<JSX.Element>();
-    const clicked_piece: number = (this.props.turn ? this.props.clicked_piece : this.props.clicked_piece - Setting.WHITE);
+    const clicked_piece: number = this.props.turn
+      ? this.props.clicked_piece
+      : this.props.clicked_piece - Setting.WHITE;
     const is_black: boolean = this.props.is_black;
     const turn: boolean = this.props.turn;
-    for(let i = 0; i < Setting.WHITE; ++i){
+    for (let i = 0; i < Setting.WHITE; ++i) {
       let num = this.props.squares[i];
-      if(num > 0){
-        if(i === clicked_piece && is_black === turn){
-          items = items.concat(<div className="board-row ley" key={i}>{this.renderSquare(true, i)}</div>);
+      if (num > 0) {
+        if (i === clicked_piece && is_black === turn) {
+          items = items.concat(
+            <div className="board-row ley" key={i}>
+              {this.renderSquare(true, i)}
+            </div>
+          );
+        } else {
+          items = items.concat(
+            <div className="board-row ley" key={i}>
+              {this.renderSquare(false, i)}
+            </div>
+          );
         }
-        else{
-          items = items.concat(<div className="board-row ley" key={i}>{this.renderSquare(false, i)}</div>);
-        }
-        if(num > 1){
-          items = items.concat(<div className="board-row ley" key={"num"+i}>{
-            <button
-              className={"number"}
-            >
-            {Setting.NUM[num]}
-            </button>
-          }</div>);
+        if (num > 1) {
+          items = items.concat(
+            <div className="board-row ley" key={"num" + i}>
+              {<button className={"number"}>{Setting.NUM[num]}</button>}
+            </div>
+          );
         }
       }
     }
 
-    return (
-      <div>
-        {items}
-      </div>
-    );
+    return <div>{items}</div>;
   }
 }

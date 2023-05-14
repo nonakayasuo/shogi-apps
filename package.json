@@ -1,22 +1,21 @@
 {
-  "name": "react-shogi",
+  "name": "shogi-apps",
   "version": "0.1.0",
-  "homepage": "http://izumo27.github.io/react-shogi",
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.9.0",
     "@material-ui/icons": "^4.5.1",
-    "@testing-library/jest-dom": "^4.2.4",
-    "@testing-library/react": "^9.4.0",
-    "@testing-library/user-event": "^7.2.1",
-    "@types/jest": "^24.0.25",
-    "@types/node": "^12.12.24",
-    "@types/react": "^16.9.17",
-    "@types/react-dom": "^16.9.4",
-    "react": "^16.12.0",
-    "react-dom": "^16.12.0",
-    "react-scripts": "3.3.0",
-    "typescript": "^3.7.4"
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^14.0.0",
+    "@testing-library/user-event": "^14.4.3",
+    "@types/jest": "^29.5.1",
+    "@types/node": "^20.1.4",
+    "@types/react": "^18.2.6",
+    "@types/react-dom": "^18.2.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1",
+    "typescript": "^5.0.4"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -42,7 +41,7 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.149",
-    "gh-pages": "^2.2.0",
+    "gh-pages": "^5.0.0",
     "lodash": "^4.17.15"
   }
 }
